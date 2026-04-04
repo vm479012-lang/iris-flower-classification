@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iris Flower Classification</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #11998e, #38ef7d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 400px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #11998e;
+            margin-bottom: 25px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 15px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #11998e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0d7a70;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #11998e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🌸 Iris Flower Classification</h2>
+        <form method="POST">
+            <label>Sepal Length (cm)</label>
+            <input type="number" name="sepal_length"
+                   placeholder="e.g. 5.1" step="0.1" required>
+
+            <label>Sepal Width (cm)</label>
+            <input type="number" name="sepal_width"
+                   placeholder="e.g. 3.5" step="0.1" required>
+
+            <label>Petal Length (cm)</label>
+            <input type="number" name="petal_length"
+                   placeholder="e.g. 1.4" step="0.1" required>
+
+            <label>Petal Width (cm)</label>
+            <input type="number" name="petal_width"
+                   placeholder="e.g. 0.2" step="0.1" required>
+
+            <button type="submit">🔍 Classify Flower</button>
+        </form>
+
+        <div class="result">
+            {{ prediction }}
+        </div>
+    </div>
+</body>
+</html>
