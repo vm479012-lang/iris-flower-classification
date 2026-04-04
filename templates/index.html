@@ -64,20 +64,25 @@
     <div class="container">
         <h2>🌸 Iris Flower Classification</h2>
         <form method="POST" action="https://iris-flower-classification-pgqp.onrender.com/">
+
             <label>Sepal Length (cm)</label>
             <input type="number" name="sepal_length"
+                   value="{{ request.form.get('sepal_length', '') }}"
                    placeholder="e.g. 5.1" step="0.1" required>
 
             <label>Sepal Width (cm)</label>
             <input type="number" name="sepal_width"
+                   value="{{ request.form.get('sepal_width', '') }}"
                    placeholder="e.g. 3.5" step="0.1" required>
 
             <label>Petal Length (cm)</label>
             <input type="number" name="petal_length"
+                   value="{{ request.form.get('petal_length', '') }}"
                    placeholder="e.g. 1.4" step="0.1" required>
 
             <label>Petal Width (cm)</label>
             <input type="number" name="petal_width"
+                   value="{{ request.form.get('petal_width', '') }}"
                    placeholder="e.g. 0.2" step="0.1" required>
 
             <button type="submit">🔍 Classify Flower</button>
