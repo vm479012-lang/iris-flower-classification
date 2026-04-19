@@ -1,194 +1,659 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iris Flower Classification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --cream: #faf6f0;
+            --sage: #7a9e7e;
+            --deep-green: #2d5a27;
+            --forest: #1a3a16;
+            --blush: #e8c4b8;
+            --gold: #c9a84c;
+            --dark: #1c1c1c;
+            --muted: #6b6b6b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: Arial;
             min-height: 100vh;
-            background: linear-gradient(-45deg, #11998e, #38ef7d, #2193b0, #6dd5ed);
-            background-size: 400% 400%;
-            animation: gradient 8s ease infinite;
-            display: flex;
-            justify-content: center;
+            background: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Botanical background patterns */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(122,158,126,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 10%, rgba(232,196,184,0.2) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Decorative botanical SVG leaves */
+        .leaf-decor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.08;
+        }
+        .leaf-decor.top-left { top: -50px; left: -50px; width: 300px; transform: rotate(-20deg); }
+        .leaf-decor.bottom-right { bottom: -50px; right: -50px; width: 350px; transform: rotate(160deg); }
+        .leaf-decor.top-right { top: 100px; right: -30px; width: 200px; transform: rotate(30deg); }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+            gap: 60px;
+            align-items: start;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            position: sticky;
+            top: 40px;
+        }
+
+        .brand-tag {
+            display: inline-flex;
             align-items: center;
-            padding: 20px;
+            gap: 8px;
+            background: var(--deep-green);
+            color: var(--cream);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 28px;
+            animation: fadeSlideDown 0.6s ease both;
         }
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .brand-tag::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
         }
 
-        .container {
-            background: white;
-            padding: 35px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        h2 {
-            text-align: center;
-            color: #11998e;
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 4vw, 3.8rem);
+            line-height: 1.1;
+            color: var(--forest);
             margin-bottom: 20px;
-            font-size: 24px;
+            animation: fadeSlideDown 0.6s 0.1s ease both;
         }
 
-        label {
-            font-weight: bold;
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
+        .hero-title em {
+            font-style: italic;
+            color: var(--sage);
         }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+        .hero-desc {
             font-size: 15px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 36px;
+            max-width: 400px;
+            animation: fadeSlideDown 0.6s 0.2s ease both;
         }
 
-        input:focus {
-            outline: none;
-            border-color: #11998e;
+        /* Flower showcase */
+        .flower-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+            animation: fadeSlideDown 0.6s 0.3s ease both;
         }
 
+        .flower-card {
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .flower-card:hover { transform: translateY(-6px); }
+
+        .flower-card-inner {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 16px 12px;
+            position: relative;
+        }
+
+        .flower-card:nth-child(1) .flower-card-inner { background: linear-gradient(160deg, #fce4ec, #f8bbd0, #e91e8c22); }
+        .flower-card:nth-child(2) .flower-card-inner { background: linear-gradient(160deg, #e8f5e9, #c8e6c9, #4caf5022); }
+        .flower-card:nth-child(3) .flower-card-inner { background: linear-gradient(160deg, #e3f2fd, #bbdefb, #2196f322); }
+
+        .flower-emoji-big {
+            font-size: 52px;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .flower-card:nth-child(2) .flower-emoji-big { animation-delay: 0.5s; }
+        .flower-card:nth-child(3) .flower-emoji-big { animation-delay: 1s; }
+
+        .flower-name-small {
+            font-family: 'Playfair Display', serif;
+            font-size: 13px;
+            font-style: italic;
+            color: var(--forest);
+            text-align: center;
+            font-weight: 400;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 24px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            animation: fadeSlideDown 0.6s 0.4s ease both;
+        }
+
+        .stat-item { text-align: center; flex: 1; }
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--deep-green);
+            font-weight: 700;
+            display: block;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* RIGHT PANEL - Form */
+        .right-panel {
+            animation: fadeSlideUp 0.7s 0.2s ease both;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.04),
+                0 20px 60px rgba(0,0,0,0.08),
+                0 0 0 1px rgba(0,0,0,0.04);
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--forest);
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Sample button */
         .sample-btn {
             width: 100%;
-            padding: 10px;
-            background: #f0f0f0;
-            border: 1px dashed #11998e;
-            border-radius: 8px;
-            color: #11998e;
-            font-size: 14px;
+            padding: 12px;
+            background: var(--cream);
+            border: 1.5px dashed var(--sage);
+            border-radius: 12px;
+            color: var(--deep-green);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            margin-bottom: 15px;
+            margin-bottom: 28px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .sample-btn:hover { background: #e0f5f0; }
+        .sample-btn:hover {
+            background: rgba(122,158,126,0.1);
+            border-color: var(--deep-green);
+        }
 
-        button[type="submit"] {
+        /* Measurement sections */
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .form-input {
             width: 100%;
-            padding: 12px;
-            background: #11998e;
+            padding: 13px 14px 13px 40px;
+            background: var(--cream);
+            border: 1.5px solid transparent;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            color: var(--dark);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            background: white;
+            border-color: var(--sage);
+            box-shadow: 0 0 0 3px rgba(122,158,126,0.15);
+        }
+
+        .form-input::placeholder { color: #bbb; font-size: 13px; }
+
+        /* Section divider */
+        .section-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 24px 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(201,168,76,0.3);
+        }
+
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--forest);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
+            font-family: 'DM Sans', sans-serif;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
+            margin-top: 28px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        button[type="submit"]:hover { background: #0d7a70; }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--deep-green), var(--sage));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
 
+        .submit-btn:hover::before { opacity: 1; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,58,22,0.3); }
+        .submit-btn:active { transform: translateY(0); }
+
+        .submit-btn span, .submit-btn .btn-icon { position: relative; z-index: 1; }
+
+        /* Spinner */
         .spinner {
             display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid white;
-            border-top: 3px solid transparent;
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
+            animation: spin 0.7s linear infinite;
+            position: relative; z-index: 1;
+        }
+
+        /* Result card */
+        .result-card {
+            margin-top: 28px;
+            padding: 28px;
+            background: linear-gradient(135deg, var(--forest), var(--deep-green));
+            border-radius: 20px;
+            text-align: center;
+            animation: resultReveal 0.5s ease both;
+            display: {% if prediction %}block{% else %}none{% endif %};
+        }
+
+        .result-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .result-flower {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: white;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .result-emoji {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 12px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .result-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.9);
+            font-size: 12px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Flower image */
+        .result-image {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 16px 0;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .result-section {
-            margin-top: 25px;
-            text-align: center;
+        @keyframes resultReveal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
-        .prediction {
-            font-size: 26px;
-            font-weight: bold;
-            color: #11998e;
-            margin-bottom: 15px;
-        }
-
-        .flower-img {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            max-height: 250px;
-            object-fit: cover;
-            border: 3px solid #11998e;
-        }
-
-        .flower-img-error {
-            display: none;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-wrapper {
+                grid-template-columns: 1fr;
+                padding: 24px 20px;
+                gap: 32px;
+            }
+            .left-panel { position: static; }
+            .hero-title { font-size: 2.2rem; }
+            .form-container { padding: 28px 22px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🌸 Iris Flower Classification</h2>
 
-        <button class="sample-btn" onclick="fillSample()">
-            🎯 Fill Sample Values (Iris Setosa)
-        </button>
+<!-- Decorative leaves -->
+<svg class="leaf-decor top-left" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 280 C20 200, -20 100, 50 20 C80 -10 160 40 180 120 C200 200 160 260 100 280Z" fill="#2d5a27"/>
+    <path d="M100 280 C100 200, 100 100, 100 20" stroke="#2d5a27" stroke-width="3"/>
+    <path d="M100 200 C70 180, 40 160, 60 130" stroke="#2d5a27" stroke-width="2"/>
+    <path d="M100 160 C130 140, 160 120, 140 90" stroke="#2d5a27" stroke-width="2"/>
+</svg>
 
-        <form method="POST" onsubmit="showSpinner()">
-            <label>Sepal Length (cm)</label>
-            <input type="number" name="sepal_length" id="sepal_length"
-                   value="{{ sepal_length }}"
-                   placeholder="e.g. 5.1" step="0.1" required>
+<svg class="leaf-decor bottom-right" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 280 C20 200, -20 100, 50 20 C80 -10 160 40 180 120 C200 200 160 260 100 280Z" fill="#2d5a27"/>
+    <path d="M100 280 C100 200, 100 100, 100 20" stroke="#2d5a27" stroke-width="3"/>
+</svg>
 
-            <label>Sepal Width (cm)</label>
-            <input type="number" name="sepal_width" id="sepal_width"
-                   value="{{ sepal_width }}"
-                   placeholder="e.g. 3.5" step="0.1" required>
+<svg class="leaf-decor top-right" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 280 C20 200, -20 100, 50 20 C80 -10 160 40 180 120 C200 200 160 260 100 280Z" fill="#7a9e7e"/>
+</svg>
 
-            <label>Petal Length (cm)</label>
-            <input type="number" name="petal_length" id="petal_length"
-                   value="{{ petal_length }}"
-                   placeholder="e.g. 1.4" step="0.1" required>
+<div class="page-wrapper">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+        <div class="brand-tag">ML Classification</div>
 
-            <label>Petal Width (cm)</label>
-            <input type="number" name="petal_width" id="petal_width"
-                   value="{{ petal_width }}"
-                   placeholder="e.g. 0.2" step="0.1" required>
+        <h1 class="hero-title">
+            Identify<br>
+            <em>Iris Flowers</em><br>
+            Instantly
+        </h1>
 
-            <button type="submit">
-                <span id="btn-text">🔍 Classify Flower</span>
-                <div class="spinner" id="spinner"></div>
-            </button>
-        </form>
+        <p class="hero-desc">
+            Enter four simple measurements and our machine learning model will identify the exact species of your Iris flower with remarkable accuracy.
+        </p>
 
-        {% if prediction %}
-        <div class="result-section">
-            <div class="prediction">{{ prediction }}</div>
-
-            {% if flower_image %}
-            <img src="{{ url_for('static', filename=flower_image) }}"
-                 class="flower-img"
-                 alt="{{ prediction }}"
-                 onerror="this.src='https://via.placeholder.com/400x250?text=Flower+Image'">
-            {% endif %}
+        <!-- Flower showcase -->
+        <div class="flower-showcase">
+            <div class="flower-card">
+                <div class="flower-card-inner">
+                    <div class="flower-emoji-big">🌸</div>
+                    <div class="flower-name-small">Iris Setosa</div>
+                </div>
+            </div>
+            <div class="flower-card">
+                <div class="flower-card-inner">
+                    <div class="flower-emoji-big">🌺</div>
+                    <div class="flower-name-small">Iris Versicolor</div>
+                </div>
+            </div>
+            <div class="flower-card">
+                <div class="flower-card-inner">
+                    <div class="flower-emoji-big">🌼</div>
+                    <div class="flower-name-small">Iris Virginica</div>
+                </div>
+            </div>
         </div>
-        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-num">150</span>
+                <span class="stat-label">Samples</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">3</span>
+                <span class="stat-label">Species</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">100%</span>
+                <span class="stat-label">Accuracy</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">4</span>
+                <span class="stat-label">Features</span>
+            </div>
+        </div>
     </div>
 
-    <script>
-        function fillSample() {
-            document.getElementById('sepal_length').value = '5.1';
-            document.getElementById('sepal_width').value = '3.5';
-            document.getElementById('petal_length').value = '1.4';
-            document.getElementById('petal_width').value = '0.2';
-        }
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 class="form-title">Enter Measurements</h2>
+                <p class="form-subtitle">All measurements should be in centimeters (cm)</p>
+            </div>
 
-        function showSpinner() {
-            document.getElementById('btn-text').style.display = 'none';
-            document.getElementById('spinner').style.display = 'block';
-        }
-    </script>
+            <button class="sample-btn" type="button" onclick="fillSample()">
+                ✨ Try Sample Values (Iris Setosa)
+            </button>
+
+            <form method="POST" action="https://iris-flower-classification-pgqp.onrender.com/" onsubmit="showSpinner()">
+
+                <div class="section-label">Sepal Measurements</div>
+
+                <div class="measurements-grid">
+                    <div class="input-group">
+                        <label class="input-label">Sepal Length</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">📏</span>
+                            <input class="form-input" type="number"
+                                   name="sepal_length" id="sepal_length"
+                                   value="{{ sepal_length }}"
+                                   placeholder="e.g. 5.1"
+                                   step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Sepal Width</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">📐</span>
+                            <input class="form-input" type="number"
+                                   name="sepal_width" id="sepal_width"
+                                   value="{{ sepal_width }}"
+                                   placeholder="e.g. 3.5"
+                                   step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-label">Petal Measurements</div>
+
+                <div class="measurements-grid">
+                    <div class="input-group">
+                        <label class="input-label">Petal Length</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🌿</span>
+                            <input class="form-input" type="number"
+                                   name="petal_length" id="petal_length"
+                                   value="{{ petal_length }}"
+                                   placeholder="e.g. 1.4"
+                                   step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Petal Width</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🍃</span>
+                            <input class="form-input" type="number"
+                                   name="petal_width" id="petal_width"
+                                   value="{{ petal_width }}"
+                                   placeholder="e.g. 0.2"
+                                   step="0.1" required>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-icon">🔍</span>
+                    <span id="btn-text">Classify Flower</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+            </form>
+
+            <!-- Result -->
+            {% if prediction %}
+            <div class="result-card">
+                <div class="result-label">Classification Result</div>
+                <span class="result-emoji">
+                    {% if "Setosa" in prediction %}🌸
+                    {% elif "Versicolor" in prediction %}🌺
+                    {% else %}🌼{% endif %}
+                </span>
+                <div class="result-flower">{{ prediction }}</div>
+                {% if flower_image %}
+                <img src="{{ url_for('static', filename=flower_image) }}"
+                     class="result-image" alt="{{ prediction }}">
+                {% endif %}
+                <span class="result-badge">✓ Identified Successfully</span>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillSample() {
+        document.getElementById('sepal_length').value = '5.1';
+        document.getElementById('sepal_width').value = '3.5';
+        document.getElementById('petal_length').value = '1.4';
+        document.getElementById('petal_width').value = '0.2';
+    }
+
+    function showSpinner() {
+        document.getElementById('btn-text').style.display = 'none';
+        document.getElementById('spinner').style.display = 'block';
+        document.querySelector('.btn-icon').style.display = 'none';
+    }
+</script>
 </body>
 </html>
